@@ -42,13 +42,15 @@ EXTRA_DIST = \
 	autogen.sh
 
 SUBDIRS = \
-	lib \
 	src \
 	doc \
-	examples \
 	po \
-	tests \
-	tools
+	tests
+
+# Files in lib/ subdirectory are picked up as needed by the build system and
+# does not need a makefile fragment.
+include examples/local.mk
+include tools/local.mk
 
 # Create the ChangeLog, but only if we're inside a git working directory
 

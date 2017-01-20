@@ -162,13 +162,8 @@ AC_CHECK_FUNCS(reallocarray)
 AC_CONFIG_FILES(
 Makefile
 doc/Makefile
-examples/Makefile
-examples/fastwc/Makefile
-examples/manual/Makefile
-lib/Makefile
 po/Makefile.in
 src/Makefile
-tools/Makefile
 tests/Makefile
 )
 

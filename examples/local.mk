@@ -19,11 +19,10 @@
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 # PURPOSE.
 
-EXTRA_DIST = \
-	wc5.l \
-	wc4.l \
-	wc3.l \
-	wc2.l \
-	wc1.l \
-	mywc.c \
-	README
+EXTRA_DIST += \
+	examples/README \
+	examples/debflex.awk \
+	examples/testxxLexer.l
+
+include examples/fastwc/local.mk
+include examples/manual/local.mk
