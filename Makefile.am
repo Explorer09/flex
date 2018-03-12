@@ -42,33 +42,36 @@ EXTRA_DIST = \
 	autogen.sh
 
 SUBDIRS = \
-	src \
 	doc \
 	examples \
 	po \
 	tests \
 	tools
 
+MOSTLYCLEANFILES =
+
+CLEANFILES =
+
+MAINTAINERCLEANFILES =
+
+include src/local.mk
+
 # Convenience targets to build libfl only
 # These are actually wrappers around automake- and libtool-generated targets
 
-libfl:
-	cd src && $(MAKE) $(AM_MAKEFLAGS) libfl.la libfl.pc
+libfl: src/libfl.la src/libfl.pc
 
 install-libfl:
-	cd src && \
 	$(MAKE) $(AM_MAKEFLAGS) lib_LTLIBRARIES=libfl.la \
 	pkgconfig_DATA=libfl.pc install-libLTLIBRARIES install-pkgconfigDATA
 
 uninstall-libfl:
-	cd src && \
 	$(MAKE) $(AM_MAKEFLAGS) \
 	lib_LTLIBRARIES=libfl.la pkgconfig_DATA=libfl.pc \
 	uninstall-libLTLIBRARIES uninstall-pkgconfigDATA
 
 # libfl.pc is cleaned via 'distclean' target
 clean-libfl:
-	cd src && \
 	$(MAKE) $(AM_MAKEFLAGS) lib_LTLIBRARIES=libfl.la clean-libLTLIBRARIES \
 	clean-libtool
 
@@ -78,9 +81,6 @@ ChangeLog: $(srcdir)/tools/git2cl
 	if [ -d $(srcdir)/.git ] ; then \
 		$(srcdir)/tools/git2cl > $@ \
 	; fi
-
-indent:
-	cd src && $(MAKE) $(AM_MAKEFLAGS) indent
 
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \

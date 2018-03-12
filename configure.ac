@@ -204,22 +204,22 @@ AS_IF([printf 'a\\\nb\nab' | sed "$sed_joiner"'; /b/ s/a//' |
   sed_joiner_2='s/@BSNL@/\\\n/g'],
   [:])
 
-AC_CONFIG_FILES([src/Makefile], [[
+AC_CONFIG_FILES([Makefile], [[
 sed "$sed_joiner"'
 s/build-flex\$(EXEEXT)/build-flex$(BUILD_EXEEXT)/g
 s|\(build-[^ \$\./][^ \$\./]*\)\.\$(OBJEXT)|\1.$(BUILD_OBJEXT)|g
-/^ *build_flex_LINK *=/ {
+/^ *src_build_flex_LINK *=/ {
   s/\$(CCLD)/$(CC_FOR_BUILD)/g
   s/\$(CFLAGS)/$(CFLAGS_FOR_BUILD)/g
   s/\$(LDFLAGS)/$(LDFLAGS_FOR_BUILD)/g
 }
-/\$(build_flex_CPPFLAGS)/ {
+/\$(src_build_flex_CPPFLAGS)/ {
   s/\$(CPP)/$(CPP_FOR_BUILD)/g
   s/\$(CC)/$(CC_FOR_BUILD)/g
   s/\$(CPPFLAGS)/$(CPPFLAGS_FOR_BUILD)/g
   s/\$(CFLAGS)/$(CFLAGS_FOR_BUILD)/g
 }
-/\$(build_flex_CFLAGS)/ {
+/\$(src_build_flex_CFLAGS)/ {
   s/\$(CC)/$(CC_FOR_BUILD)/g
   s/\$(CCLD)/$(CC_FOR_BUILD)/g
   s/\$(CPPFLAGS)/$(CPPFLAGS_FOR_BUILD)/g
@@ -227,11 +227,10 @@ s|\(build-[^ \$\./][^ \$\./]*\)\.\$(OBJEXT)|\1.$(BUILD_OBJEXT)|g
   s/\$(LDFLAGS)/$(LDFLAGS_FOR_BUILD)/g
 }
 '"$sed_joiner_2"'
-' src/Makefile >"$tmp"/Makefile.tmp && mv -f "$tmp"/Makefile.tmp src/Makefile
+' Makefile >"$tmp"/Makefile.tmp && mv -f "$tmp"/Makefile.tmp Makefile
 ]], [sed_joiner='${sed_joiner}' sed_joiner_2='${sed_joiner_2}'])
 
 AC_CONFIG_FILES(
-Makefile
 doc/Makefile
 examples/Makefile
 examples/fastwc/Makefile
