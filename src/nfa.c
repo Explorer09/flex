@@ -33,11 +33,25 @@
 
 #include "flexdef.h"
 
+/* Returns true if an nfa state has an epsilon out-transition slot
+ * that can be used.  This definition is currently not used.
+ */
+#define FREE_EPSILON(state) \
+    (transchar[state] == SYM_EPSILON && \
+     trans2[state] == NO_TRANSITION && \
+     finalst[state] != state)
+
+/* Returns true if an nfa state has an epsilon out-transition character
+ * and both slots are free
+ */
+#define SUPER_FREE_EPSILON(state) \
+    (transchar[state] == SYM_EPSILON && \
+     trans1[state] == NO_TRANSITION) \
 
 /* declare functions that have forward references */
 
-int	dupmachine(int);
-void	mkxtion(int, int);
+static int dupmachine(int);
+static void mkxtion(int, int);
 
 
 /* add_accept - add an accepting state to a machine
@@ -144,7 +158,7 @@ void    dumpnfa (int state1)
  * states accessible by the arrays firstst and lastst
  */
 
-int     dupmachine (int mach)
+static int dupmachine (int mach)
 {
 	int     i, init, state_offset;
 	int     state = 0;
@@ -665,7 +679,7 @@ current_mns);
  *     stateto   - the state to which the transition is to be made
  */
 
-void    mkxtion (int statefrom, int stateto)
+static void mkxtion(int statefrom, int stateto)
 {
 	if (trans1[statefrom] == NO_TRANSITION)
 		trans1[statefrom] = stateto;

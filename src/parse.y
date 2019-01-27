@@ -112,6 +112,11 @@ int previous_continued_action;	/* whether the previous rule's action was '|' */
  */
 #define YYSTYPE int
 
+static void build_eof_action(void);
+static void format_warn(const char *, const char *);
+static void line_pinpoint(const char *, int);
+static void yyerror(const char *);
+
 %}
 
 %%
@@ -953,7 +958,7 @@ string		:  string CHAR
  *                    conditions
  */
 
-void build_eof_action(void)
+static void build_eof_action(void)
 	{
 	int i;
 	char action_text[MAXLINE];
@@ -1013,7 +1018,7 @@ void synerr( const char *str )
 
 /* format_warn - write out formatted warning */
 
-void format_warn( const char *msg, const char arg[] )
+static void format_warn( const char *msg, const char arg[] )
 	{
 	char warn_msg[MAXLINE];
 
@@ -1066,7 +1071,7 @@ void line_warning( const char *str, int line )
 
 /* line_pinpoint - write out a message, pinpointing it at the given line */
 
-void line_pinpoint( const char *str, int line )
+static void line_pinpoint( const char *str, int line )
 	{
 	fprintf( stderr, "%s:%d: %s\n", infilename, line, str );
 	}
@@ -1076,7 +1081,7 @@ void line_pinpoint( const char *str, int line )
  *	     currently, messages are ignore
  */
 
-void yyerror( const char *msg )
+static void yyerror( const char *msg )
 	{
 		(void)msg;
 	}

@@ -132,21 +132,6 @@
 /* transition_struct_out() definitions. */
 #define TRANS_STRUCT_PRINT_LENGTH 14
 
-/* Returns true if an nfa state has an epsilon out-transition slot
- * that can be used.  This definition is currently not used.
- */
-#define FREE_EPSILON(state) \
-	(transchar[state] == SYM_EPSILON && \
-	 trans2[state] == NO_TRANSITION && \
-	 finalst[state] != state)
-
-/* Returns true if an nfa state has an epsilon out-transition character
- * and both slots are free
- */
-#define SUPER_FREE_EPSILON(state) \
-	(transchar[state] == SYM_EPSILON && \
-	 trans1[state] == NO_TRANSITION) \
-
 /* Maximum number of NFA states that can comprise a DFA state.  It's real
  * big because if there's a lot of rules, the initial state will have a
  * huge epsilon closure.
@@ -695,22 +680,10 @@ extern void list_character_set(FILE *, int[]);
 
 /* from file dfa.c */
 
-/* Check a DFA state for backing up. */
-extern void check_for_backing_up(int, int[]);
-
-/* Check to see if NFA state set constitutes "dangerous" trailing context. */
-extern void check_trailing_context(int *, int, int *, int);
-
-/* Construct the epsilon closure of a set of ndfa states. */
-extern int *epsclosure(int *, int *, int[], int *, int *);
-
 /* Increase the maximum number of dfas. */
 extern void increase_max_dfas(void);
 
 extern void ntod(void);	/* convert a ndfa to a dfa */
-
-/* Converts a set of ndfa states into a dfa state. */
-extern int snstods(int[], int, int[], int, int, int *);
 
 
 /* from file ecs.c */
@@ -729,46 +702,6 @@ extern void mkechar(int, int[], int[]);
 
 
 /* from file gen.c */
-
-extern void do_indent(void);	/* indent to the current level */
-
-/* Generate the code to keep backing-up information. */
-extern void gen_backing_up(void);
-
-/* Generate the code to perform the backing up. */
-extern void gen_bu_action(void);
-
-/* Generate full speed compressed transition table. */
-extern void genctbl(void);
-
-/* Generate the code to find the action number. */
-extern void gen_find_action(void);
-
-extern void genftbl(void);	/* generate full transition table */
-
-/* Generate the code to find the next compressed-table state. */
-extern void gen_next_compressed_state(char *);
-
-/* Generate the code to find the next match. */
-extern void gen_next_match(void);
-
-/* Generate the code to find the next state. */
-extern void gen_next_state(int);
-
-/* Generate the code to make a NUL transition. */
-extern void gen_NUL_trans(void);
-
-/* Generate the code to find the start state. */
-extern void gen_start_state(void);
-
-/* Generate data statements for the transition tables. */
-extern void gentabs(void);
-
-/* Write out a formatted string at the current indentation level. */
-extern void indent_put2s(const char *, const char *);
-
-/* Write out a string + newline at the current indentation level. */
-extern void indent_puts(const char *);
 
 extern void make_tables(void);	/* generate transition tables */
 
@@ -793,9 +726,6 @@ extern int all_lower(char *);
 
 /* True if a string is all upper case. */
 extern int all_upper(char *);
-
-/* Compare two integers for use by qsort. */
-extern int intcmp(const void *, const void *);
 
 /* Check a character to make sure it's in the expected range. */
 extern void check_char(int c);
@@ -949,9 +879,6 @@ extern void new_rule(void);	/* initialize for a new rule */
 
 /* from file parse.y */
 
-/* Build the "<<EOF>>" action for the active start conditions. */
-extern void build_eof_action(void);
-
 /* Write out a message formatted with one string, pinpointing its location. */
 extern void format_pinpoint_message(const char *, const char *);
 
@@ -961,15 +888,10 @@ extern void pinpoint_message(const char *);
 /* Write out a warning, pinpointing it at the given line. */
 extern void line_warning(const char *, int);
 
-/* Write out a message, pinpointing it at the given line. */
-extern void line_pinpoint(const char *, int);
-
 /* Report a formatted syntax error. */
 extern void format_synerr(const char *, const char *);
 extern void synerr(const char *);	/* report a syntax error */
-extern void format_warn(const char *, const char *);
 extern void lwarn(const char *);	/* report a warning */
-extern void yyerror(const char *);	/* report a parse error */
 extern int yyparse(void);		/* the YACC parser */
 
 

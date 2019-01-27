@@ -188,15 +188,6 @@ int all_upper (char *str)
 	return 1;
 }
 
-
-/* intcmp - compares two integers for use by qsort. */
-
-int intcmp (const void *a, const void *b)
-{
-  return *(const int *) a - *(const int *) b;
-}
-
-
 /* check_char - checks a character to make sure it's within the range
  *		we're expecting.  If not, generates fatal error message
  *		and exits.
