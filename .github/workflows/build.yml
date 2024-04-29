@@ -34,3 +34,18 @@ jobs:
       run: make check
     - name: make distcheck
       run: make distcheck
+
+  cross-build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: autogen
+      run: ./autogen.sh
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu
+    - name: make
+      run: make -k
