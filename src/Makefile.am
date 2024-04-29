@@ -31,22 +31,55 @@ nodist_stage1flex_SOURCES = \
 	$(SKELINCLUDES)
 
 if CROSS
-stage1flex_LDADD =
-stage1flex_SOURCES += \
-		      ../lib/malloc.c \
-		      ../lib/realloc.c
-stage1flex_LINK = $(LIBTOOL) --tag=CC --mode=link $(CC_FOR_BUILD) \
-		  $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@
 
-$(stage1flex_OBJECTS): CC=$(CC_FOR_BUILD)
-$(stage1flex_OBJECTS): CFLAGS=$(CFLAGS_FOR_BUILD) -DUSE_CONFIG_FOR_BUILD
-$(stage1flex_OBJECTS): CPP=$(CPP_FOR_BUILD)
-$(stage1flex_OBJECTS): CPPFLAGS=$(CPPFLAGS_FOR_BUILD)
-$(stage1flex_OBJECTS): LDFLAGS=$(LDFLAGS_FOR_BUILD)
-else
-stage1flex_LDADD = $(LDADD)
-stage1flex_LINK = $(LINK)
-stage1flex_CFLAGS = $(AM_CFLAGS)
+stage1flex_SOURCES += \
+	../lib/malloc.c \
+	../lib/realloc.c
+
+# Suppress build warnings when compiling and linking stage1flex.
+stage1flex_CFLAGS =
+
+stage1flex_CPPFLAGS = -DUSE_CONFIG_FOR_BUILD $(AM_CPPFLAGS)
+
+# This also overrides AM_LIBTOOLFLAGS and AM_LDFLAGS
+stage1flex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC --mode=link $(CC_FOR_BUILD) \
+	$(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@
+
+# Default $(LDADD) would include $(LIBOBJS). Not applicable to stage1flex.
+stage1flex_LDADD =
+
+build-flex$(BUILD_EXEEXT):
+	@if test "x$(EXEEXT)" != "x$(BUILD_EXEEXT)"; then rm -f stage1flex$(EXEEXT); else :; fi
+	@if test "x$(OBJEXT)" != "x$(BUILD_OBJEXT)"; then rm -f stage1flex-*.$(OBJEXT); else :; fi
+	@$(MAKE) $(AM_MAKEFLAGS) \
+		CC="$(CC_FOR_BUILD)" \
+		CPP="$(CPP_FOR_BUILD)" \
+		CFLAGS="$(CFLAGS_FOR_BUILD)" \
+		CPPFLAGS="$(CPPFLAGS_FOR_BUILD)" \
+		LDFLAGS="$(LDFLAGS_FOR_BUILD)" \
+		EXEEXT="$(BUILD_EXEEXT)" \
+		OBJEXT="$(BUILD_OBJEXT)" \
+		stage1flex$(BUILD_EXEEXT)
+	@cp stage1flex$(BUILD_EXEEXT) build-flex$(BUILD_EXEEXT)
+
+mostlyclean-local:
+	-if test "x$(OBJEXT)" != "x$(BUILD_OBJEXT)"; then rm -f stage1flex-*.$(BUILD_OBJEXT); fi
+
+clean-local:
+	-if test "x$(EXEEXT)" != "x$(BUILD_EXEEXT)"; then rm -f stage1flex$(BUILD_EXEEXT); fi
+
+stage1flex$(EXEEXT): $(stage1flex_OBJECTS) $(stage1flex_DEPENDENCIES) $(EXTRA_stage1flex_DEPENDENCIES)
+	@rm -f stage1flex$(EXEEXT)
+	@if test "x$(CC)" = "x$(CC_FOR_BUILD)" && "x$(CPP)" = "x$(CPP_FOR_BUILD)"; then \
+		:
+	else \
+		# Delete object files as they might be built with a wrong compiler
+		rm -f stage1flex-*.$(OBJEXT) \
+		echo "error: stage1flex must be built with a native compiler" 1>&2 \
+		exit 1 \
+	fi
+	$(AM_V_CCLD)$(stage1flex_LINK) $(stage1flex_OBJECTS) $(stage1flex_LDADD)
+
 endif
 
 flex_SOURCES = \
@@ -112,7 +145,7 @@ MOSTLYCLEANFILES = \
 	stage2scan.c \
 	stage2compare
 
-CLEANFILES = stage1flex$(EXEEXT)
+CLEANFILES = build-flex$(BUILD_EXEEXT) stage1flex$(EXEEXT)
 
 SKELINCLUDES = \
 	cpp-flex.h \
@@ -137,8 +170,8 @@ go-flex.h: go-flex.skl mkskel.sh
 # The input and output file names are fixed for deterministic scanner
 # generation. If scan.l is not modified by builders, stage1scan.c should
 # be bit-identical to the scan.c pregenerated on release.
-stage1scan.c: scan.l stage1flex$(EXEEXT)
-	( cd $(srcdir) && $(abs_builddir)/stage1flex$(EXEEXT) \
+stage1scan.c: scan.l build-flex$(BUILD_EXEEXT)
+	( cd $(srcdir) && $(abs_builddir)/build-flex$(BUILD_EXEEXT) \
 	  $(AM_LFLAGS) $(LFLAGS) -o scan.c -t scan.l ) >$@ || \
 	{ s=$$?; rm -f $@; exit $$s; }
 
