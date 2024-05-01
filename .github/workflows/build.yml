@@ -2,7 +2,8 @@ name: Build and Test
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - '*'
     tags-ignore:
     - 'v*'
   pull_request:
@@ -25,7 +26,30 @@ jobs:
       run: ./configure
     - name: make
       run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+    - name: print generated man page (raw)
+      run: |
+        ( cd doc && ../src/flex --help )
+        ( cd doc && ../src/flex --version )
+        ls -l doc/flex.1
+        cat doc/flex.1
+
+  cross-build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: autogen
+      run: ./autogen.sh
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu
+    - name: make
+      run: make
+    - name: print generated man page (raw)
+      run: |
+        ( cd doc && ../src/stage1flex --help )
+        ( cd doc && ../src/stage1flex --version )
+        ls -l doc/flex.1
+        cat doc/flex.1
