@@ -2,7 +2,8 @@ name: Build and Test
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - '*'
     tags-ignore:
     - 'v*'
   pull_request:
@@ -21,11 +22,356 @@ jobs:
       run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive
     - name: autogen
       run: ./autogen.sh
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l Makefile.in
+        cat Makefile.in
     - name: configure
       run: ./configure
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
     - name: make
       run: make
+    - name: make install (temp dir)
+      run: |
+        make DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
     - name: make check
       run: make check
     - name: make distcheck
       run: make distcheck
+
+  cross-build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: autogen
+      run: ./autogen.sh
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l Makefile.in
+        cat Makefile.in
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
+    - name: make
+      run: make
+    - name: make install (temp dir)
+      run: |
+        make DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+
+  vpath-build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive
+    - name: move directory layout
+      run: |
+        mkdir flex-build flex-src
+        for file in $(ls -a); do
+          case $file in
+          .|..|.github|flex-build|flex-src)
+            :
+            ;;
+          *)
+            mv "$file" flex-src/"$file"
+            ;;
+          esac
+        done
+    - name: autogen
+      run: |
+        ( cd flex-src && ./autogen.sh )
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l flex-src/Makefile.in
+        cat flex-src/Makefile.in
+    - name: configure
+      run: |
+        ( cd flex-build && ../flex-src/configure )
+    - name: dump Makefile
+      run: |
+        ls -l flex-build/Makefile
+        cat flex-build/Makefile
+    - name: make
+      run: |
+        ( cd flex-build && make )
+        ( cd flex-build &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+    - name: make install (temp dir)
+      run: |
+        ( cd flex-build &&
+        make DESTDIR=$(pwd)/../tmp_root install ) &&
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+    - name: make check
+      run: |
+        rm -f flex-build/flex
+        rm -f flex-build/src/flex
+        ( cd flex-build && make check )
+    - name: make distcheck
+      run: |
+        ( cd flex-build && make distcheck )
+
+  vpath-cross-build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: move directory layout
+      run: |
+        mkdir flex-build flex-src
+        for file in $(ls -a); do
+          case $file in
+          .|..|.github|flex-build|flex-src)
+            :
+            ;;
+          *)
+            mv "$file" flex-src/"$file"
+            ;;
+          esac
+        done
+    - name: autogen
+      run: |
+        ( cd flex-src && ./autogen.sh )
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l flex-src/Makefile.in
+        cat flex-src/Makefile.in
+    - name: configure
+      run: |
+        ( cd flex-build && ../flex-src/configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu )
+    - name: dump Makefile
+      run: |
+        ls -l flex-build/Makefile
+        cat flex-build/Makefile
+    - name: make
+      run: |
+        ( cd flex-build && make )
+        ( cd flex-build &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+    - name: make install (temp dir)
+      run: |
+        ( cd flex-build &&
+        make DESTDIR=$(pwd)/../tmp_root install ) &&
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+
+  build-ubuntu-jammy:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive
+    - name: autogen
+      run: ./autogen.sh
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l Makefile.in
+        cat Makefile.in
+    - name: configure
+      run: ./configure
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
+    - name: make
+      run: make
+    - name: make install (temp dir)
+      run: |
+        make DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
+
+  cross-build-ubuntu-jammy:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: autogen
+      run: ./autogen.sh
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l Makefile.in
+        cat Makefile.in
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
+    - name: make
+      run: make
+    - name: make install (temp dir)
+      run: |
+        make DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+
+  vpath-build-ubuntu-jammy:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive
+    - name: move directory layout
+      run: |
+        mkdir flex-build flex-src
+        for file in $(ls -a); do
+          case $file in
+          .|..|.github|flex-build|flex-src)
+            :
+            ;;
+          *)
+            mv "$file" flex-src/"$file"
+            ;;
+          esac
+        done
+    - name: autogen
+      run: |
+        ( cd flex-src && ./autogen.sh )
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l flex-src/Makefile.in
+        cat flex-src/Makefile.in
+    - name: configure
+      run: |
+        ( cd flex-build && ../flex-src/configure )
+    - name: dump Makefile
+      run: |
+        ls -l flex-build/Makefile
+        cat flex-build/Makefile
+    - name: make
+      run: |
+        ( cd flex-build && make )
+        ( cd flex-build &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+    - name: make install (temp dir)
+      run: |
+        ( cd flex-build &&
+        make DESTDIR=$(pwd)/../tmp_root install ) &&
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+    - name: make check
+      run: |
+        rm -f flex-build/flex
+        rm -f flex-build/src/flex
+        ( cd flex-build && make check )
+    - name: make distcheck
+      run: |
+        ( cd flex-build && make distcheck )
+
+  vpath-cross-build-ubuntu-jammy:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu
+    - name: move directory layout
+      run: |
+        mkdir flex-build flex-src
+        for file in $(ls -a); do
+          case $file in
+          .|..|.github|flex-build|flex-src)
+            :
+            ;;
+          *)
+            mv "$file" flex-src/"$file"
+            ;;
+          esac
+        done
+    - name: autogen
+      run: |
+        ( cd flex-src && ./autogen.sh )
+    - name: autotools version
+      run: |
+        autoconf --version
+        automake --version
+    - name: dump Makefile.in
+      run: |
+        ls -l flex-src/Makefile.in
+        cat flex-src/Makefile.in
+    - name: configure
+      run: |
+        ( cd flex-build && ../flex-src/configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu )
+    - name: dump Makefile
+      run: |
+        ls -l flex-build/Makefile
+        cat flex-build/Makefile
+    - name: make
+      run: |
+        ( cd flex-build && make )
+        ( cd flex-build &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+    - name: make install (temp dir)
+      run: |
+        ( cd flex-build &&
+        make DESTDIR=$(pwd)/../tmp_root install ) &&
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
