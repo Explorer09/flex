@@ -44,6 +44,9 @@ jobs:
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
         test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
     - name: make install (temp dir)
       run: |
         make DESTDIR=$(pwd)/tmp_root install
@@ -87,6 +90,9 @@ jobs:
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
         test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
     - name: make install (temp dir)
       run: |
         make DESTDIR=$(pwd)/tmp_root install
@@ -144,7 +150,10 @@ jobs:
         { test ! -f flex || size flex
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
-        test ! -f src/stage1flex || size src/stage1flex; } )
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped; } )
     - name: make install (temp dir)
       run: |
         ( cd flex-build &&
@@ -211,7 +220,10 @@ jobs:
         { test ! -f flex || size flex
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
-        test ! -f src/stage1flex || size src/stage1flex; } )
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped; } )
     - name: make install (temp dir)
       run: |
         ( cd flex-build &&
@@ -252,6 +264,9 @@ jobs:
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
         test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
     - name: make install (temp dir)
       run: |
         make DESTDIR=$(pwd)/tmp_root install
@@ -295,6 +310,9 @@ jobs:
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
         test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
     - name: make install (temp dir)
       run: |
         make DESTDIR=$(pwd)/tmp_root install
@@ -352,7 +370,10 @@ jobs:
         { test ! -f flex || size flex
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
-        test ! -f src/stage1flex || size src/stage1flex; } )
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped; } )
     - name: make install (temp dir)
       run: |
         ( cd flex-build &&
@@ -419,7 +440,10 @@ jobs:
         { test ! -f flex || size flex
         test ! -f stage1flex || size stage1flex
         test ! -f src/flex || size src/flex
-        test ! -f src/stage1flex || size src/stage1flex; } )
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped; } )
     - name: make install (temp dir)
       run: |
         ( cd flex-build &&
