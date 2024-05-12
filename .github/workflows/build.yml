@@ -100,6 +100,40 @@ jobs:
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
         rm -rf tmp_root
 
+  cross-build-bmake:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu bmake
+    - name: autogen
+      run: ./autogen.sh
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu MAKE=bmake
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
+    - name: bmake
+      run: bmake
+    - name: get program size
+      run: |
+        test ! -f flex || size flex
+        test ! -f stage1flex || size stage1flex
+        test ! -f src/flex || size src/flex
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
+    - name: make install (temp dir)
+      run: |
+        bmake DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+
   vpath-build:
 
     runs-on: ubuntu-20.04
@@ -316,6 +350,40 @@ jobs:
     - name: make install (temp dir)
       run: |
         make DESTDIR=$(pwd)/tmp_root install
+        ( cd tmp_root &&
+          list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
+        rm -rf tmp_root
+
+  cross-build-ubuntu-jammy-bmake:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    - name: apt
+      run: sudo apt-get install gcc autoconf bison gettext autopoint help2man lzip texinfo texlive gcc-aarch64-linux-gnu bmake
+    - name: autogen
+      run: ./autogen.sh
+    - name: configure
+      run: ./configure --build=x86_64-linux-gnu --host=aarch64-linux-gnu MAKE=bmake
+    - name: dump Makefile
+      run: |
+        ls -l Makefile
+        cat Makefile
+    - name: bmake
+      run: bmake
+    - name: get program size
+      run: |
+        test ! -f flex || size flex
+        test ! -f stage1flex || size stage1flex
+        test ! -f src/flex || size src/flex
+        test ! -f src/stage1flex || size src/stage1flex
+        test ! -f flex || cp flex flex-stripped
+        test ! -f src/flex || cp src/flex flex-stripped
+        aarch64-linux-gnu-strip -s --remove-section=.note.gnu.build-id flex-stripped && sha256sum -b flex-stripped
+    - name: make install (temp dir)
+      run: |
+        bmake DESTDIR=$(pwd)/tmp_root install
         ( cd tmp_root &&
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
         rm -rf tmp_root
