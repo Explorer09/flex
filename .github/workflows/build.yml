@@ -37,7 +37,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: make
-      run: make
+      run: make -j
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -83,7 +83,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: make
-      run: make
+      run: make -j
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -117,7 +117,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: bmake
-      run: bmake
+      run: bmake -j16
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -175,7 +175,7 @@ jobs:
         cat flex-build/Makefile
     - name: make
       run: |
-        ( cd flex-build && make )
+        ( cd flex-build && make -j )
         ( cd flex-build &&
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
     - name: get program size
@@ -245,7 +245,7 @@ jobs:
         cat flex-build/Makefile
     - name: make
       run: |
-        ( cd flex-build && make )
+        ( cd flex-build && make -j )
         ( cd flex-build &&
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
     - name: get program size
@@ -291,7 +291,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: make
-      run: make
+      run: make -j
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -337,7 +337,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: make
-      run: make
+      run: make -j
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -371,7 +371,7 @@ jobs:
         ls -l Makefile
         cat Makefile
     - name: bmake
-      run: bmake
+      run: bmake -j16
     - name: get program size
       run: |
         test ! -f flex || size flex
@@ -429,7 +429,7 @@ jobs:
         cat flex-build/Makefile
     - name: make
       run: |
-        ( cd flex-build && make )
+        ( cd flex-build && make -j )
         ( cd flex-build &&
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
     - name: get program size
@@ -499,7 +499,7 @@ jobs:
         cat flex-build/Makefile
     - name: make
       run: |
-        ( cd flex-build && make )
+        ( cd flex-build && make -j )
         ( cd flex-build &&
           list=$( find . | LC_ALL=C sort ); for f in $list; do ls -d -l -g -o "$f" || echo "$f"; done )
     - name: get program size
