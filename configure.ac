@@ -111,13 +111,49 @@ AC_ARG_ENABLE([libfl],
   [], [enable_libfl=yes])
 AM_CONDITIONAL([ENABLE_LIBFL], [test "x$enable_libfl" = xyes])
 
+#split_flex_version_str () {
+#  flex_major_version=$1
+#  flex_minor_version=$2
+#  flex_subminor_version=$3
+#   "-DFLEX_MAJOR_VERSION=$1" \
+#   "-DFLEX_MINOR_VERSION=$2" \
+#   "-DFLEX_SUBMINOR_VERSION=$3"
+#[$PACKAGE_VERSION]
+#}
+
+
 # --disable-bootstrap is intended only to workaround problems with bootstrap
 # (e.g. when cross-compiling flex or when bootstrapping has bugs).
 # Ideally we should be able to bootstrap even when cross-compiling.
 AC_ARG_ENABLE([bootstrap],
-  [AS_HELP_STRING([--disable-bootstrap],
-                  [don't perform a bootstrap when building flex])],
+  [AS_HELP_STRING([--enable-bootstrap],
+                  [perform a bootstrap when building flex])],
   [], [enable_bootstrap=yes])
+
+#AS_IF([test "x$enable_bootstrap" = xmaybe],)
+#  [split_flex_version_str ]
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include "scan.c"
+$PACKAGE_VERSION
+enable_bootstrap $enable_bootstrap
+]])],
+  [
+echo '### conftest.c begin ###'
+cat conftest.c
+echo '### conftest.c end ###'
+#enable_bootstrap=no
+],
+  [
+echo '### conftest.c begin ###'
+cat conftest.c
+echo '### conftest.c end ###'
+echo fail
+#enable_bootstrap=yes
+])
+#if !defined FLEX_MAJOR_VERSION || FLEX_MAJOR_VERSION != $
+#   "-DFLEX_MINOR_VERSION=$2" \
+#   "-DFLEX_SUBMINOR_VERSION=$3"
+
 AM_CONDITIONAL([ENABLE_BOOTSTRAP], [test "x$enable_bootstrap" = xyes])
 
 AM_CONDITIONAL([CROSS], [test "x$cross_compiling" = xyes])
